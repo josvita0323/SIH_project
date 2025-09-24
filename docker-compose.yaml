@@ -27,11 +27,18 @@ services:
       - ./backend/app:/app/backend/app
 
   frontend:
-    image: nginx:alpine
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
     ports:
-      - "3000:80"
+      - "3000:3000"
     volumes:
-      - ./frontend:/usr/share/nginx/html
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
 
 volumes:
   pgdata:
