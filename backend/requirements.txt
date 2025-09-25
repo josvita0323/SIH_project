@@ -4,3 +4,14 @@ sqlmodel
 psycopg2-binary
 werkzeug
 python-multipart
+torch 
+torchvision 
+torchaudio
+easyocr 
+opencv-python
+pillow
+numpy
+PyMuPDF
+transformers
+accelerate
+bitsandbytes 
