@@ -17,7 +17,7 @@ class Users(SQLModel, table=True):
     email: str = Field(index=True, unique=True, nullable=False)
     full_name: Optional[str] = None
 
-    jobs: List[Job] = Relationship(back_populates="user")
+    jobs: List["Job"] = Relationship(back_populates="user")
 
 
 class Job(SQLModel, table=True):
@@ -28,8 +28,9 @@ class Job(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc))
 
     user: Optional[Users] = Relationship(back_populates="jobs")
-    uploads: List[Upload] = Relationship(back_populates="job")
-    actionable_lines: List[ActionableLine] = Relationship(back_populates="job")
+    uploads: List["Upload"] = Relationship(back_populates="job")
+    actionable_lines: List["ActionableLine"] = Relationship(
+        back_populates="job")
 
 
 class Upload(SQLModel, table=True):
@@ -40,11 +41,11 @@ class Upload(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc))
 
     job: Optional[Job] = Relationship(back_populates="uploads")
-    extracted_contents: List[ExtractedContent] = Relationship(
+    extracted_contents: List["ExtractedContent"] = Relationship(
         back_populates="upload")
-    actionable_lines: List[ActionableLine] = Relationship(
+    actionable_lines: List["ActionableLine"] = Relationship(
         back_populates="upload")
-    summarized_contents: List[SummarizedContent] = Relationship(
+    summarized_contents: List["SummarizedContent"] = Relationship(
         back_populates="upload")
 
 
@@ -56,7 +57,7 @@ class ExtractedContent(SQLModel, table=True):
 
     upload: Optional[Upload] = Relationship(
         back_populates="extracted_contents")
-    actionable_lines: List[ActionableLine] = Relationship(
+    actionable_lines: List["ActionableLine"] = Relationship(
         back_populates="content")
 
 
