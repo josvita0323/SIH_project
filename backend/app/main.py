@@ -20,9 +20,15 @@ create_db_and_tables()
 class UploadRequest(BaseModel):
     user_id: int
 
+def parse_payload(payload: str = Form(...)) -> UploadRequest:
+    try:
+        return UploadRequest.model_validate_json(payload)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON in payload")
+
 
 @app.post("/upload/")
-def upload_pdf(file: UploadFile = File(...), payload: UploadRequest = Body(...)):
+def upload_pdf(file: UploadFile = File(...), payload: UploadRequest = Depends(parse_payload)):
     if file.content_type != "application/pdf" or not file.filename:
         raise HTTPException(
             status_code=400, detail="Invalid file type, only PDFs allowed"
