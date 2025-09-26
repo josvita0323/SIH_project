@@ -1,6 +1,7 @@
 import os
 import shutil
-from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
+from fastapi import Body, FastAPI, Form, UploadFile, File, Depends, HTTPException
+from pydantic import BaseModel
 from sqlmodel import Session
 from werkzeug.utils import secure_filename
 from app.crud import *
@@ -16,8 +17,12 @@ app = FastAPI(title="PDF Job Processor")
 create_db_and_tables()
 
 
+class UploadRequest(BaseModel):
+    user_id: int
+
+
 @app.post("/upload/")
-def upload_pdf(file: UploadFile = File(...), session: Session = Depends(get_session)):
+def upload_pdf(file: UploadFile = File(...), payload: UploadRequest = Body(...)):
     if file.content_type != "application/pdf" or not file.filename:
         raise HTTPException(
             status_code=400, detail="Invalid file type, only PDFs allowed"
@@ -26,14 +31,12 @@ def upload_pdf(file: UploadFile = File(...), session: Session = Depends(get_sess
     filename = secure_filename(file.filename)
     save_path = os.path.join(UPLOAD_FOLDER, filename)
 
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     with open(save_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # Create a job
-    # TODO: replace with real user_id
-    job = create_job(user_id=1)
-
-    # Create an upload linked to this job
+    user_id = payload.user_id
+    job = create_job(user_id=user_id)
     upload = upsert_upload(job_id=job.id, file_path=save_path)
     extract_data(upload.id)
 
