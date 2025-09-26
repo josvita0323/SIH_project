@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional, List
-from sqlalchemy import String
-from sqlmodel import SQLModel, Field, Relationship, Column
+from sqlalchemy import String, Column
+from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime, timezone
 from sqlalchemy.dialects.postgresql import ARRAY
 
@@ -11,7 +11,7 @@ class JobState(str, Enum):
     FINISHED = "FINISHED"
 
 
-class User(SQLModel, table=True):
+class Users(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(index=True, unique=True, nullable=False)
     full_name: Optional[str] = None
@@ -21,12 +21,13 @@ class User(SQLModel, table=True):
 
 class Job(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id", nullable=False)
+    # points to "users" table
+    user_id: int = Field(foreign_key="users.id", nullable=False)
     status: JobState = Field(default=JobState.PENDING)
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc))
 
-    user: Optional["User"] = Relationship(back_populates="jobs")
+    user: Optional["Users"] = Relationship(back_populates="jobs")
     uploads: List["Upload"] = Relationship(back_populates="job")
     actionable_lines: List["ActionableLine"] = Relationship(
         back_populates="job")
@@ -68,3 +69,9 @@ class ActionableLine(SQLModel, table=True):
     departments: List[str] = Field(
         sa_column=Column(ARRAY(String), nullable=False, server_default='{}')
     )
+
+    job: Optional["Job"] = Relationship(back_populates="actionable_lines")
+    upload: Optional["Upload"] = Relationship(
+        back_populates="actionable_lines")
+    content: Optional["ExtractedContent"] = Relationship(
+        back_populates="actionable_lines")
