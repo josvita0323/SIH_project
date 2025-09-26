@@ -1,12 +1,10 @@
 import os
 import shutil
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session
 from werkzeug.utils import secure_filename
-
-from app.ocr import OCR_Manager
 from app.crud import *
-from app.models import Job, JobState, Upload
+from app.models import Job
 from app.database import create_db_and_tables, get_session
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(
@@ -33,27 +31,13 @@ def upload_pdf(file: UploadFile = File(...), session: Session = Depends(get_sess
 
     # Create a job
     # TODO: replace with real user_id
-    job = Job(status=JobState.PENDING, user_id=1)
-    session.add(job)
-    session.commit()
-    session.refresh(job)
+    job = create_job(user_id=1)
 
     # Create an upload linked to this job
-    upload = Upload(file_path=save_path, job_id=job.id)
-    session.add(upload)
-    session.commit()
-    extract_data(upload.id, session)
+    upload = upsert_upload(job_id=job.id, file_path=save_path)
+    extract_data(upload.id)
 
     return {"job_id": job.id, "upload_id": upload.id}
-
-def extract_data(upload_id:int, session:Session = Depends(get_session)):
-    upload_path = session.exec(select(Upload.file_path).where(Upload.id == upload_id)).first()
-    ocm = OCR_Manager(upload_path)
-    pages = ocm.process_doc()
-    for page in pages:
-        extrcontent = upsert_extracted_content(session, upload_id, " ".join(page["content"]), page["page-number"])
-        print(f"{extrcontent.id} has been inserted!")
-    print(session.exec(select(ExtractedContent.text)).all())
 
 
 @app.get("/job-status/{job_id}")
