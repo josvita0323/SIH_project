@@ -29,7 +29,7 @@ export function SimpleUpload({ user_id }: { user_id: number }) {
       formData.append("file", selected);
       formData.append("user_id", user_id.toString());
 
-      const res = await fetch("/api/upload", {
+      const res = await fetch("http://localhost:8000/upload", {
         method: "POST",
         body: formData,
       });
