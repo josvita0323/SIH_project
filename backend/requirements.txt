@@ -1,3 +1,19 @@
+<<<<<<< HEAD
+fastapi
+uvicorn[standard]
+sqlmodel
+psycopg2-binary
+werkzeug
+python-multipart
+pytesseract
+pillow
+numpy
+PyMuPDF
+bitsandbytes 
+pydantic==2.7.1
+langchain_openai==0.0.204
+langchain==0.1.228
+=======
 fastapi==0.115.1
 uvicorn[standard]==0.23.2
 sqlmodel==0.0.8
@@ -16,3 +32,4 @@ bitsandbytes==0.39.0
 pydantic==2.7.1
 langchain_openai==0.0.204
 langchain==0.1.228
+>>>>>>> fb02e471e5a4ea44194c7fea78dee9da93d0a0a1

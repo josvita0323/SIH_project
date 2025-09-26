@@ -4,9 +4,10 @@ FROM python:3.12-slim AS base
 ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1 \
+COPY backend/requirements.txt /app/requirements.txt
+RUN apt-get update && apt-get install -y tesseract-ocr \
     && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/requirements.txt .
 
