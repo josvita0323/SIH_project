@@ -4,9 +4,14 @@ import Image from "next/image"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Briefcase, ShoppingCart, ShieldAlert, BarChartBig } from "lucide-react"
+import { Briefcase, ShoppingCart, ShieldAlert, BarChartBig, Home } from "lucide-react"
+import { useRouter } from "next/navigation"
 
-export type RoleKey = "rolling-stock-manager" | "procurement-officer" | "hr-safety-coordinator" | "executive-director"
+export type RoleKey =
+  | "rolling-stock-manager"
+  | "procurement-officer"
+  | "hr-safety-coordinator"
+  | "executive-director"
 
 export function RoleSelector({
   onSelect,
@@ -15,8 +20,11 @@ export function RoleSelector({
   onSelect: (role: RoleKey) => void
   onBackToLanding?: () => void
 }) {
+  const router = useRouter()
+
   return (
     <main className="min-h-screen bg-slate-50">
+      
       <header className="bg-white border-b sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -28,16 +36,21 @@ export function RoleSelector({
               <p className="text-sm text-muted-foreground">Choose a stakeholder demo</p>
             </div>
           </div>
-          {onBackToLanding ? (
-            <Button variant="outline" onClick={onBackToLanding}>
-              Back to Landing
+
+          <div className="flex items-center gap-2">
+            {onBackToLanding && (
+              <Button variant="outline" onClick={onBackToLanding}>
+                Back to Landing
+              </Button>
+            )}
+            <Button variant="ghost" aria-label="Home" onClick={() => router.push("/")}>
+              <Home className="w-5 h-5" />
             </Button>
-          ) : null}
+          </div>
         </div>
       </header>
 
       <section className="container mx-auto px-4 py-8">
-        
         <div className="text-center max-w-3xl mx-auto mt-10 mb-8">
           <h2 className="text-3xl font-bold text-balance">Who's using the demo?</h2>
           <p className="text-muted-foreground mt-2">
@@ -79,7 +92,9 @@ export function RoleSelector({
                 <CardTitle>HR & Safety Coordinator</CardTitle>
               </div>
               <Badge variant="secondary">Human Resources & Safety</Badge>
-              <CardDescription>Organizes training, circulates safety circulars, and tracks compliance.</CardDescription>
+              <CardDescription>
+                Organizes training, circulates safety circulars, and tracks compliance.
+              </CardDescription>
             </CardHeader>
           </Card>
 

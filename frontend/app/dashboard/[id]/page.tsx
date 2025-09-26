@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeftCircle } from "lucide-react";
+import { ArrowLeftCircle,Home } from "lucide-react";
 import { SimpleUpload } from "@/components/simple-upload";
 import { InboxList } from "@/components/inbox-list";
 
@@ -79,14 +79,13 @@ export default function DashboardPage() {
               <p className="text-sm text-muted-foreground">{config.subtitle}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push("/selector")}
-            >
+           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => router.push("/selector")}>
               <ArrowLeftCircle className="w-4 h-4 mr-2" />
               Role Selector
+            </Button>
+            <Button variant="ghost" size="icon" aria-label="Home" onClick={() => router.push("/")}>
+              <Home className="w-5 h-5" />
             </Button>
           </div>
         </div>
@@ -100,6 +99,7 @@ export default function DashboardPage() {
             <p className="text-sm text-muted-foreground">{config.quickInfo}</p>
           </Card>
         </div>
+
         <InboxList role={config.inboxRole as RoleKey} />
       </section>
     </main>
