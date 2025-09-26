@@ -8,6 +8,6 @@ pytesseract
 pillow
 numpy
 PyMuPDF
-pydantic==2.7.1
-langchain_openai==0.0.204
-langchain==0.1.228
+pydantic
+langchain_openai==0.3.33
+langchain==0.3.27
