@@ -3,6 +3,8 @@ from typing import Optional, List
 from app.models import Users, Job, ActionableLine, JobState, Upload, ExtractedContent
 from app.database import get_session
 from app.ocr import OCR_Manager
+from app.llm import *
+import json
 
 # Singleton session
 session: Session = next(get_session())
@@ -165,7 +167,7 @@ def get_actionable_line_details(line_id: int) -> Optional[ActionableLine]:
     return line
 
 
-def extract_data(upload_id: int | None):
+def extract_data(upload_id: int | None) -> tuple[list[int], list[dict]]:
     if not upload_id:
         raise ValueError("Nope")
     upload_path = session.exec(
@@ -174,8 +176,16 @@ def extract_data(upload_id: int | None):
         raise ValueError("No Path")
     ocm = OCR_Manager(upload_path)
     pages = ocm.process_doc()
+    extraction_data_list = []
+    actionable_data = []
     for page in pages:
         extrcontent = upsert_extracted_content(
             upload_id, " ".join(page["content"]), page["page-number"])
         print(f"{extrcontent.id} has been inserted!")
-    print(session.exec(select(ExtractedContent.text)).all())
+        extraction_data_list.append(extrcontent.text)
+        output_llm = chain.invoke({
+            "text": extrcontent.text,
+            "format_instructions": parser.get_format_instructions()
+        })
+        actionable_data.append(json.loads(output_llm.model_dump_json()))
+    return (extraction_data_list, actionable_data)

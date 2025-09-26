@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 from app.crud import *
 from app.models import Job
 from app.database import create_db_and_tables, get_session
+from app.summarizer import *
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(
     os.path.dirname(__file__)), "upload")
@@ -44,7 +45,12 @@ def upload_pdf(file: UploadFile = File(...), payload: UploadRequest = Depends(pa
     user_id = payload.user_id
     job = create_job(user_id=user_id)
     upload = upsert_upload(job_id=job.id, file_path=save_path)
-    extract_data(upload.id)
+    extraction_text_lists, analysis_data = extract_data(upload.id)
+    print(analysis_data)
+    for i, page_analysis in enumerate(analysis_data):
+        for department_analysis in page_analysis["analysis_results"]:
+            sum_obj = summarize_and_store(upload.id, department_analysis["Topic_Name"], extraction_text_lists[i], department_analysis["Department_Name"])
+            print(f"Added Summarized Content {sum_obj.id}")
 
     return {"job_id": job.id, "upload_id": upload.id}
 

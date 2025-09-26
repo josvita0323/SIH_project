@@ -20,7 +20,6 @@ OPENROUTER_MODEL = "deepseek/deepseek-chat-v3.1:free"
 class AnalysisResultSchema(BaseModel):
     Department_Name: str = Field(..., description="Most relevant department")
     Topic_Name: str = Field(..., description="Concise topic name")
-    Summary: str = Field(..., description="Brief summary of discussion")
 
 
 class AnalysisResultsList(BaseModel):
