@@ -16,12 +16,7 @@ def main():
     ocm = OCR_Manager(upload_path)
     pages = ocm.process_doc()
     for page in pages:
-        extrcontent = upsert_extracted_content(
-            1, " ".join(page["content"]), page["page-number"])
-        print(f"{extrcontent.id} has been inserted!")
-        stmt = select(ExtractedContent)
-        output = session.exec(stmt).all()
-        print(output)
+        print(page)
 
 
 main()

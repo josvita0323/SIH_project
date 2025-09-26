@@ -1,4 +1,5 @@
 import pytesseract as pyt
+from pytesseract import Output
 import numpy as np
 import fitz
 
@@ -25,11 +26,12 @@ class OCR_Manager:
         try:
             data = {
                 "content":[],
-                "page-number": page_number + 1
+                "page-number": page_number + 1,
+                "conf-scores":[]
             } 
-            results = pyt.image_to_string(image_vector)
-            for sentence in results:
-                data["content"].append(sentence[1])
+            results = pyt.image_to_data(image_vector, output_type=Output.DICT)
+            data["content"] = results["text"]
+            data["conf-scores"] = results["conf"]
             return data
         except Exception as e:
             print(f"An error occurred: {e}")
