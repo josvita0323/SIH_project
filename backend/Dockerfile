@@ -3,6 +3,8 @@ FROM python:3.12-slim
 WORKDIR /app
 
 COPY backend/requirements.txt /app/requirements.txt
+RUN apt-get update && apt-get install -y libgl1-mesa-glx \
+&& rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend /app/backend

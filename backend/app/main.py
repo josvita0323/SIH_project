@@ -1,9 +1,11 @@
 import os
 import shutil
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
-from sqlmodel import Session
+from sqlmodel import Session, select
 from werkzeug.utils import secure_filename
 
+from app.ocr import OCR_Manager
+from app.crud import *
 from app.models import Job, JobState, Upload
 from app.database import create_db_and_tables, get_session
 
@@ -40,8 +42,18 @@ def upload_pdf(file: UploadFile = File(...), session: Session = Depends(get_sess
     upload = Upload(file_path=save_path, job_id=job.id)
     session.add(upload)
     session.commit()
+    extract_data(upload.id, session)
 
     return {"job_id": job.id, "upload_id": upload.id}
+
+def extract_data(upload_id:int, session:Session = Depends(get_session)):
+    upload_path = session.exec(select(Upload.file_path).where(Upload.id == upload_id)).first()
+    ocm = OCR_Manager(upload_path)
+    pages = ocm.process_doc()
+    for page in pages:
+        extrcontent = upsert_extracted_content(session, upload_id, " ".join(page["content"]), page["page-number"])
+        print(f"{extrcontent.id} has been inserted!")
+    print(session.exec(select(ExtractedContent.text)).all())
 
 
 @app.get("/job-status/{job_id}")

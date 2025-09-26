@@ -9,19 +9,16 @@ class OCR_Manager:
         self.__reader = easyocr.Reader(['en']) 
         self.__document = fitz.open(pdf_path)
             
-    def process_doc(self, output_dir:str|None = None) -> None:
+    def process_doc(self) -> list[dict]:
         try:
+            pagewise_json_data = []
             for i, page in enumerate(self.__document):
                 print(f"Performing OCR on PAGE {i+1}.")
                 page_pix = page.get_pixmap(dpi=300)
                 image_vector = np.frombuffer(page_pix.samples, dtype=np.uint8).reshape(page_pix.height, page_pix.width, page_pix.n)
-                page_json = self.__process_page(image_vector, i)
-                if output_dir:
-                    
-                    with open(f"{output_dir}/{i+1}.json", "w") as f:
-                        f.write(json.dumps(page_json, indent=1))
-                        f.close()
+                pagewise_json_data.append(self.__process_page(image_vector, i))
             self.__document.close()
+            return pagewise_json_data
         except Exception as e:
             print(f"Error: {e}")
 
@@ -31,7 +28,7 @@ class OCR_Manager:
                 "bounding-boxes":[],
                 "content":[],
                 "conf-score":[],
-                "page": page_number + 1
+                "page-number": page_number + 1
             } 
             results = self.__reader.readtext(image_vector)
             for sentence in results:
