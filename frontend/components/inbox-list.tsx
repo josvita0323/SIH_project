@@ -25,16 +25,47 @@ function useUserData(userId: string) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    fetch(`http://localhost:8000/summarized-content/department/${userId}`)
-      .then((res) => res.json())
-      .then((json) => setData(json))
-      .finally(() => setLoading(false));
+    let cancelled = false;
+
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `http://localhost:8000/summarized-content/department/${userId}`
+        );
+        if (!res.ok) throw new Error("Bad response");
+
+        let json: any;
+        try {
+          json = await res.json();
+          if (!Array.isArray(json)) throw new Error("Not array JSON");
+        } catch {
+          json = [];
+        }
+
+        if (!cancelled) {
+          setData(json);
+        }
+      } catch {
+        if (!cancelled) {
+          setData([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [userId]);
 
   return { data, loading };
 }
-
 export function InboxList({ role }: { role: RoleKey }) {
   const userId = ROLE_USER_MAP[role];
   const { data: docs, loading } = useUserData(userId);

@@ -167,25 +167,50 @@ def get_actionable_line_details(line_id: int) -> Optional[ActionableLine]:
     return line
 
 
-def extract_data(upload_id: int | None) -> tuple[list[int], list[dict]]:
+def extract_data(upload_id: int | None) -> tuple[list[str], list[dict]]:
     if not upload_id:
-        raise ValueError("Nope")
+        raise ValueError("No upload_id provided")
+    print(f"[INFO] Starting extraction for upload_id={upload_id}")
+
     upload_path = session.exec(
-        select(Upload.file_path).where(Upload.id == upload_id)).first()
+        select(Upload.file_path).where(Upload.id == upload_id)
+    ).first()
     if not upload_path:
-        raise ValueError("No Path")
+        raise ValueError(
+            f"[ERROR] No file path found for upload_id={upload_id}")
+
+    print(f"[INFO] Located file path: {upload_path}")
+
     ocm = OCR_Manager(upload_path)
+    print("[INFO] Running OCR_Manager.process_doc()...")
     pages = ocm.process_doc()
-    extraction_data_list = []
-    actionable_data = []
-    for page in pages:
+    print(f"[INFO] OCR complete. Total pages detected: {len(pages)}")
+
+    extraction_data_list: list[str] = []
+    actionable_data: list[dict] = []
+
+    for idx, page in enumerate(pages, start=1):
+        print(f"[INFO] Processing page {idx}/{len(pages)}...")
+        page_text = " ".join(page["content"])
         extrcontent = upsert_extracted_content(
-            upload_id, " ".join(page["content"]), page["page-number"])
-        print(f"{extrcontent.id} has been inserted!")
-        extraction_data_list.append(extrcontent.text)
+            upload_id, page_text, page.get("page-number")
+        )
+        print(f"[INFO] ExtractedContent inserted with id={extrcontent.id}")
+
         output_llm = chain.invoke({
             "text": extrcontent.text,
             "format_instructions": parser.get_format_instructions()
         })
-        actionable_data.append(json.loads(output_llm.model_dump_json()))
-    return (extraction_data_list, actionable_data)
+
+        try:
+            actionable_json = json.loads(output_llm.model_dump_json())
+        except Exception as e:
+            print(f"[ERROR] Failed to parse LLM output for page {idx}: {e}")
+            actionable_json = {}
+
+        actionable_data.append(actionable_json)
+        extraction_data_list.append(extrcontent.text)
+        print(f"[INFO] Page {idx} processing complete.")
+
+    print(f"[INFO] Extraction finished for upload_id={upload_id}")
+    return extraction_data_list, actionable_data

@@ -24,7 +24,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 create_db_and_tables()
+upsert_user(email="manager@railcorp.com", full_name="Rolling Stock Manager")
+upsert_user(email="procurement@railcorp.com", full_name="Procurement Officer")
+upsert_user(email="hr@railcorp.com", full_name="HR & Safety Coordinator")
+upsert_user(email="executive@railcorp.com", full_name="Executive Director")
 
 
 class UploadRequest(BaseModel):
