@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 from app.models import SummarizedContent
 from app.database import get_session
-from backend.app.department import get_department_by_name
+from app.department import get_department_by_name
 
 load_dotenv()
 

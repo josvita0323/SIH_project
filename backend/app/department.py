@@ -45,6 +45,6 @@ departments = [
 
 def get_department_by_name(name: str):
     for dept in departments:
-        if dept["name"] == name:
+        if dept["title"] == name:
             return dept
     return None
