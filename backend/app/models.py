@@ -88,5 +88,10 @@ class SummarizedContent(SQLModel, table=True):
     upload_id: Optional[int] = Field(default=None, foreign_key="upload.id")
     department: str = Field(nullable=False)
 
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc), nullable=False
+    )
+
     upload: Optional["Upload"] = Relationship(
-        back_populates="summarized_contents")
+        back_populates="summarized_contents"
+    )

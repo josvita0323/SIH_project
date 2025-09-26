@@ -13,7 +13,7 @@ load_dotenv()
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY") or ""
 OPENAI_API_BASE = "https://openrouter.ai/api/v1"
-OPENROUTER_MODEL = "deepseek/deepseek-chat-v3.1:free"
+OPENROUTER_MODEL = "openai/gpt-5-nano"
 
 
 class SummarizedContentSchema(BaseModel):
@@ -25,19 +25,29 @@ class SummarizedContentSchema(BaseModel):
 parser = PydanticOutputParser(pydantic_object=SummarizedContentSchema)
 
 prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are an AI that reads a topic and its related context, "
-               "and summarizes the information into structured content relevant "
-               "to the specified department."),
-    ("user",
-     "Document Analysis Request:\n\n"
-     "Topic: {action_line}\n"
-     "Context: {extracted_content}\n"
-     "Department: {department}\n"
-     "Department Description: {department_desc}\n\n"
-     "Your task: Summarize the context focusing on the topic provided, "
-     "highlighting actionable information and insights that are directly "
-     "relevant to the department specified.\n\n"
-     "Return JSON strictly following this format:\n{format_instructions}")
+    (
+        "system",
+        "You are an AI that analyzes documents for different departments. "
+        "Your role is to extract and summarize only the parts of the text "
+        "that are directly useful to the specified department. "
+        "Do not explain what the department does, do not repeat generic context, "
+        "and do not include irrelevant details."
+    ),
+    (
+        "user",
+        "Document Analysis Request:\n\n"
+        "Topic: {action_line}\n"
+        "Context: {extracted_content}\n"
+        "Department: {department}\n"
+        "Department Description: {department_desc}\n\n"
+        "Instructions:\n"
+        "- Identify if the provided context contains information important for this department.\n"
+        "- If yes, summarize ONLY that relevant part concisely so the department "
+        "can act without reading the full context.\n"
+        "- Avoid redundancy and irrelevant details.\n"
+        "- If nothing is relevant, return an empty valued JSON object.\n\n"
+        "Return JSON strictly in this format:\n{format_instructions}"
+    )
 ])
 
 llm = ChatOpenAI(

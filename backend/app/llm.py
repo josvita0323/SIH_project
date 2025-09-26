@@ -10,7 +10,7 @@ load_dotenv()
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY") or ""
 OPENAI_API_BASE = "https://openrouter.ai/api/v1"
-OPENROUTER_MODEL = "deepseek/deepseek-chat-v3.1:free"
+OPENROUTER_MODEL = "openai/gpt-5-nano"
 
 # ----------------------
 # Pydantic schemas
