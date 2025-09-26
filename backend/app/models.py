@@ -75,3 +75,16 @@ class ActionableLine(SQLModel, table=True):
         back_populates="actionable_lines")
     content: Optional["ExtractedContent"] = Relationship(
         back_populates="actionable_lines")
+
+
+class SummarizedContent(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    title: str = Field(nullable=False)
+    description: str = Field(nullable=False)
+
+    upload_id: Optional[int] = Field(default=None, foreign_key="upload.id")
+    department: str = Field(nullable=False)
+
+    upload: Optional["Upload"] = Relationship(
+        back_populates="summarized_contents")
