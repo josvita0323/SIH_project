@@ -49,7 +49,7 @@ export function SimpleUpload({ user_id }: { user_id: number }) {
   };
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-base">Upload PDF</CardTitle>
       </CardHeader>
