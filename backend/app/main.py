@@ -10,7 +10,7 @@ from app.models import Job
 from app.database import create_db_and_tables, get_session
 from app.summarizer import *
 from fastapi.middleware.cors import CORSMiddleware
-from vector_db import *
+from app.vector_db import *
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(
     os.path.dirname(__file__)), "upload")

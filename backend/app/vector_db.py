@@ -15,7 +15,7 @@ def create_index(index_name:str) -> None:
         spec={
             "serverless": {
                 "cloud": "aws",
-                "region": "ap-south-1"
+                "region": "us-east-1"
                 }
             }
         )
