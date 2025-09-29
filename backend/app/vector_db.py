@@ -73,6 +73,7 @@ def get_vector_data(index, query:str, k:int) -> list[dict]:
                 "score": match["score"],
                 "tag": match["metadata"]["topic-name"],
                 "chunk-text": match["metadata"]["chunktext"],
-                "date": match["metadata"]["date"]
+                "date": match["metadata"]["date"],
+                "source": match["metadata"]["source"]
             })
     return response
