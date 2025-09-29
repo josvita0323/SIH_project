@@ -11,3 +11,5 @@ PyMuPDF
 pydantic
 langchain_openai==0.3.33
 langchain==0.3.27
+pinecone
+sentence-transformers

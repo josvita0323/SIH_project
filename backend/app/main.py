@@ -10,6 +10,7 @@ from app.models import Job
 from app.database import create_db_and_tables, get_session
 from app.summarizer import *
 from fastapi.middleware.cors import CORSMiddleware
+from vector_db import *
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(
     os.path.dirname(__file__)), "upload")
@@ -30,6 +31,8 @@ upsert_user(email="manager@railcorp.com", full_name="Rolling Stock Manager")
 upsert_user(email="procurement@railcorp.com", full_name="Procurement Officer")
 upsert_user(email="hr@railcorp.com", full_name="HR & Safety Coordinator")
 upsert_user(email="executive@railcorp.com", full_name="Executive Director")
+create_index(index_name="semantic-tags-vdb")
+vector_index = connect_db(index_name="semantic-tags-vdb")
 
 
 class UploadRequest(BaseModel):
@@ -66,6 +69,7 @@ def upload_pdf(file: UploadFile = File(...), user_id: int = Form(...)):
             sum_obj = summarize_and_store(upload.id, department_analysis["Topic_Name"], str(
                 extraction_text_lists[i]), department_analysis["Department_Name"])
             print(f"Added Summarized Content {sum_obj.id}")
+            upsert_vector_data(index=vector_index, topic_data=department_analysis["Topic_Name"], id=f"{filename}-{department_analysis["Department_Name"]}-{department_analysis["Topic_Name"]}")
 
     return {"job_id": job.id, "upload_id": upload.id}
 
