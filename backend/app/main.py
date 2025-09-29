@@ -69,7 +69,6 @@ def upload_pdf(file: UploadFile = File(...), user_id: int = Form(...)):
             sum_obj = summarize_and_store(upload.id, department_analysis["Topic_Name"], str(
                 extraction_text_lists[i]), department_analysis["Department_Name"])
             print(f"Added Summarized Content {sum_obj.id}")
-            upsert_vector_data(index=vector_index, topic_data=department_analysis["Topic_Name"], id=f"{filename}-{department_analysis["Department_Name"]}-{department_analysis["Topic_Name"]}")
 
     return {"job_id": job.id, "upload_id": upload.id}
 

@@ -1,6 +1,7 @@
 from pinecone import Pinecone, ServerlessSpec
 from sentence_transformers import SentenceTransformer
 import os
+from datetime import date
 
 VECTOR_API_KEY = os.getenv("API_VECTOR_DB")
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -28,21 +29,24 @@ def connect_db(index_name:str):
     print("Connected to VECTOR INDEX")
     return  vector_index
 
-def upsert_vector_data(index, topic_data:str, id:str, doc_name:str|None):
+def upsert_vector_data(index, topic_data:str, summarized_data:str, department_name:str, doc_name:str|None = None) -> str:
     if not pc.has_index(index):
         raise Exception("Index does not exist!")
     embedded_vector_data = model.encode(topic_data).tolist()
     index.upsert(
         vectors=[{
-            "id": id,
+            "id": f"{date.today()}-{topic_data}-{department_name}",
             "values": embedded_vector_data,
             "metadata": {
-                "chunk_text": topic_data,
-                "source": doc_name if doc_name is None else ""
+                "topic-name": topic_data,
+                "chunk-text": summarized_data,
+                "source": doc_name,
+                "date": date.today()
             }
         }
     ])
     print("Successfully inserted vector data!")
+    return id
 
 def delete_vector_data(index, list_of_ids:list[str]):
     if not pc.has_index(index):
@@ -55,18 +59,20 @@ def delete_vector_data(index, list_of_ids:list[str]):
     else:
         print("Verification failed. Vector still exists.")
     
-def get_vector_data(index, query:str) -> list[dict]:
+def get_vector_data(index, query:str, k:int) -> list[dict]:
     response = []
     query_vector = model.encode(query).tolist()
     result = index.query(
         vector=query_vector,
-        top_k=5,
+        top_k=k,
         include_metadata=True
     )
     for match in result["matches"]:
         if match["score"] > 0.65:
             response.append({
                 "score": match["score"],
-                "tag": match["metadata"]["chunk_text"]
+                "tag": match["metadata"]["topic-name"],
+                "chunk-text": match["metadata"]["chunktext"],
+                "date": match["metadata"]["date"]
             })
     return response

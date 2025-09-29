@@ -4,7 +4,8 @@ from langchain.prompts import ChatPromptTemplate
 from langchain.output_parsers import PydanticOutputParser
 import os
 from dotenv import load_dotenv
-
+from app.vector_db import *
+from datetime import date
 from app.models import SummarizedContent
 from app.database import get_session
 from app.department import get_department_by_name
@@ -61,7 +62,7 @@ llm = ChatOpenAI(
 chain = prompt | llm | parser
 
 
-def summarize_and_store(upload_id: int, action_line: str, content: str, department_name: str) -> SummarizedContent:
+def summarize_and_store(upload_id: int, action_line: str, content: str, department_name: str, topic_name:str, vector_index) -> SummarizedContent:
     session = next(get_session())
 
     department = get_department_by_name(department_name)
@@ -79,11 +80,18 @@ def summarize_and_store(upload_id: int, action_line: str, content: str, departme
     summary: SummarizedContentSchema = result
     print(summary.model_dump_json(indent=2))
 
+    fetch_results = get_vector_data(vector_index, summary.description, 6)
+    fetch_tags = [output["tag"] for output in fetch_results]
+    print(f"Related Tags :{fetch_tags}")
+    vec_data_id = upsert_vector_data(index=vector_index, topic_data=topic_name, summarized_data=summary.description, department_name=department["name"])
+    print(f"{vec_data_id} stored in VDB")
+
     obj = SummarizedContent(
         title=summary.title,
         description=summary.description,
         upload_id=upload_id,
         department=department["name"],
+        tags= ",".join(fetch_tags)
     )
     session.add(obj)
     session.commit()
