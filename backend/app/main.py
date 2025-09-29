@@ -67,7 +67,8 @@ def upload_pdf(file: UploadFile = File(...), user_id: int = Form(...)):
     for i, page_analysis in enumerate(analysis_data):
         for department_analysis in page_analysis["analysis_results"]:
             sum_obj = summarize_and_store(upload.id, department_analysis["Topic_Name"], str(
-                extraction_text_lists[i]), department_analysis["Department_Name"])
+                extraction_text_lists[i]), department_analysis["Department_Name"], topic_name=department_analysis["Topic_Name"],
+                vector_index=vector_index, source_file=filename)
             print(f"Added Summarized Content {sum_obj.id}")
 
     return {"job_id": job.id, "upload_id": upload.id}
