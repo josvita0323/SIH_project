@@ -252,8 +252,10 @@ export default function DashboardPage() {
           />
         </div>
 
+        <InboxList role={config.inboxRole as RoleKey} />
+
         {/* Checklist Section */}
-        <Card className="mb-8">
+        <Card className="my-8">
           <div className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <CheckCircle className="w-5 h-5 text-primary" />
@@ -394,8 +396,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </Card>
-
-        <InboxList role={config.inboxRole as RoleKey} />
       </section>
     </main>
   );

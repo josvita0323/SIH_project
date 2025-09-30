@@ -37,15 +37,20 @@ parser = PydanticOutputParser(pydantic_object=AnalysisResultsList)
 prompt = ChatPromptTemplate.from_messages([
     ("system", "You are a helpful assistant that always responds in valid JSON format."),
     ("user",
-     """Analyze the text data provided below to identify key topics, the most relevant department for each topic, and a summary.
+     """Analyze the text data provided below to identify only the most important and highly relevant topics.
+Avoid redundancy and do not force every department to be included if not relevant.
 
 *Context & Rules:*
-The data is a meeting transcript. The relevant departments are strictly limited to: "Rolling Stock Operations", "Procurement", "HR & Safety", and "Executive Management".
+- The data is a meeting transcript.  
+- The relevant departments are strictly limited to: "Rolling Stock Operations", "Procurement", "HR & Safety", and "Executive Management".  
+- Only include topics that are clearly important and actionable.  
+- If a department is not mentioned in a meaningful way, exclude it.  
+- Do not generate filler or generic topics just to cover all departments.  
 
-*Required Output Format:*
+*Required Output Format:*  
 {format_instructions}
 
-*Text Data to Analyze:*
+*Text Data to Analyze:*  
 {text}
 """)
 ])

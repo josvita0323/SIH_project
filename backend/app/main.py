@@ -31,8 +31,8 @@ upsert_user(email="manager@railcorp.com", full_name="Rolling Stock Manager")
 upsert_user(email="procurement@railcorp.com", full_name="Procurement Officer")
 upsert_user(email="hr@railcorp.com", full_name="HR & Safety Coordinator")
 upsert_user(email="executive@railcorp.com", full_name="Executive Director")
-create_index(index_name="semantic-tags-vdb")
-vector_index = connect_db(index_name="semantic-tags-vdb")
+create_index(index_name="intellidoc")
+vector_index = connect_db(index_name="intellidoc")
 
 
 class UploadRequest(BaseModel):
